@@ -1,4 +1,10 @@
 import pygame
+import os
+import country
+
+
+def countries_init():
+    return []
 
 
 class Game:
@@ -6,13 +12,14 @@ class Game:
         self.width = 1200
         self.height = 800
         self.win = pygame.display.set_mode((self.width, self.height))
-        self.countries = []
-
-
+        self.countries = countries_init()
+        self.days_passed = 0
+        self.speed = 1
 
     def run(self):
         run = True
         while run:
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -29,12 +36,15 @@ class Game:
         pygame.quit()
 
     def update(self):
-        for country in self.countries:
-            country.update()
+        for cntry in self.countries:
+            cntry.update()
 
     def draw(self):
-        for country in self.countries:
-            country.draw()
+
+        for cntry in self.countries:
+            cntry.draw(self.win)
+
+        pygame.display.update()
 
 
 if __name__ == "__main__":
