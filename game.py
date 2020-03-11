@@ -1,29 +1,44 @@
 import pygame
 import os
 import country
+import sidebar
 
 
 def countries_init():
     cntrs = []
-    cnt = country.Country("Test country")
-    cnt.population = 5000000
-    cnt.is_sick = True
-    cnt.set_position((100, 100))
-    cnt.set_size((900, 600))
-    cnt.load_images("test.png", "testcol.png")
-    points = [(0, 0), (0, 500), (500, 500), (500, 0)]
-    cnt.set_polygon(points)
-    cntrs.append(cnt)
+    rus = country.Country("RUS")
+    rus.set_size((400, 200))
+    rus.set_position((50, 50))
+    rus.load_image("rus.png")
+    rus.set_polygon([(0, 0), (0, 600), (600, 600), (600, 0)])
+    # cntrs.append(rus)
+
+    rus2 = country.Country("RUS")
+    rus2.set_size((400, 200))
+    rus2.set_position((150, 150))
+    rus2.load_image("rus.png")
+    rus2.set_polygon([(600, 300), (1200, 300), (1200, 600), (600, 600)])
+    # cntrs.append(rus2)
     return cntrs
 
 
 class Game:
     def __init__(self):
-        self.width = 1200
-        self.height = 800
+        self.width = 1380
+        self.height = 600
+        self.border_width = 15
+        self.paint_area_width = int(self.width * 2 / 3 - 2 * self.border_width)
+        self.paint_area_height = int(self.height - 2 * self.border_width)
+
         self.win = pygame.display.set_mode((self.width, self.height))
+
+        #self.border = pygame.image.load(os.path.join("imgs", "border.png"))
+        self.sidebar = sidebar.Sidebar(self.width / 3, self.height, (self.width * 2 / 3, 0))
         self.bg = pygame.image.load(os.path.join("imgs", "bg.png"))
-        self.bg = pygame.transform.scale(self.bg, (self.width, self.height))
+        self.bg = pygame.transform.scale(self.bg, (self.paint_area_width, self.paint_area_height))
+        self.county_borders = pygame.image.load(os.path.join("imgs", "country_borders.png"))
+        self.county_borders = pygame.transform.scale(self.county_borders, (self.paint_area_width, self.paint_area_height))
+
         self.countries = countries_init()
         self.selected_county = None
         self.is_country_infected = False
@@ -65,16 +80,23 @@ class Game:
         if self.is_country_infected:
             self.days_passed += self.speed
 
+            self.sidebar.update(self.selected_county)
+
             for cntry in self.countries:
                 cntry.update(self.speed)
 
 
 
     def draw(self):
-        self.win.blit(self.bg, (0, 0))
+
+        self.win.blit(self.bg, (self.border_width, self.border_width))
+
+        self.sidebar.draw(self.win)
 
         for cntry in self.countries:
             cntry.draw(self.win)
+
+        self.win.blit(self.county_borders, (self.border_width, self.border_width))
 
         pygame.display.update()
 
