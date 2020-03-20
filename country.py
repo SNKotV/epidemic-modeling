@@ -17,16 +17,20 @@ class Country:
         self.country_shape_polygon = None
         self.sick = 0
         self.is_sick = False
+        # Remove
+        self.pol = []
 
     def set_position(self, pos):
         self.position = pos
 
     def set_polygon(self, points):
         self.country_shape_polygon = Polygon(points)
+        # Remove
+        self.pol = points
 
-    def update(self, speed):
+    def update(self, infection_probability, speed):
         if self.is_sick:
-            sick = self.sick + 10000
+            sick = self.sick + max(1, int(self.sick * infection_probability / 100))
             self.sick = min(self.population, sick)
 
             ratio = int(self.sick / self.population * 255)
@@ -36,8 +40,6 @@ class Country:
             return (255, 255, 255)
 
     def is_selected(self, x, y):
-        x -= self.position[0]
-        y -= self.position[1]
         point = Point((x, y))
         return self.country_shape_polygon.contains(point)
 
@@ -45,3 +47,7 @@ class Country:
         if not self.is_sick:
             self.is_sick = True
             self.sick = 1
+
+    # Remove
+    def show_polygon(self, win):
+        pygame.draw.polygon(win, (0, 0, 255), self.pol)

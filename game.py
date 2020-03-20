@@ -1,3 +1,5 @@
+import random
+
 import cv2
 import pygame
 import os
@@ -6,19 +8,47 @@ import sidebar
 import world
 
 
-def countries_init():
+def countries_init(screen_width, screen_height, border_width):
     cntrs = []
-    rus = country.Country("Тест")
-    rus.set_position((100, 100))
-    rus.set_polygon([(0, 0), (0, 300), (300, 300), (300, 0)])
-    rus.population = 1000000
-    cntrs.append(rus)
 
-    rus2 = country.Country("RUS")
-    rus2.set_position((500, 80))
-    rus2.set_polygon([(0, 0), (0, 300), (300, 300), (300, 0)])
-    rus2.population = 1000000
-    cntrs.append(rus2)
+    info_file = open("countries.info")
+    lines = info_file.readlines()
+
+    width = int(lines[0].split(':')[0])
+    height = int(lines[0].split(':')[1])
+
+    for line in lines[1:]:
+        split = line.split(':')
+        name = split[0]
+        population = int(split[1])
+        position = [int((split[2].split(',')[0][1:])),
+                    int(split[2].split(',')[1][1:-1])]
+
+        position[0] = int(position[0] / width * screen_width + border_width)
+        position[1] = int(position[1] / height * screen_height + border_width)
+
+        points = []
+
+        i = 1
+        point = []
+        for ch in split[3][1:-2].split():
+            if i > 0:
+                point.append(int(ch[1:-1]))
+            else:
+                point.append(int(ch[:-2]))
+                point[0] = int(point[0] / width * screen_width + border_width)
+                point[1] = int(point[1] / height * screen_height + border_width)
+                points.append(tuple(point))
+                point = []
+            i *= -1
+
+        cnt = country.Country(name)
+        cnt.population = population
+        cnt.set_position(tuple(position))
+        cnt.set_polygon(points)
+
+        cntrs.append(cnt)
+
     return cntrs
 
 
@@ -39,10 +69,12 @@ class Game:
         self.bg = pygame.image.load(os.path.join("imgs", "bg.jpg"))
         self.bg = pygame.transform.scale(self.bg, (self.paint_area_width, self.paint_area_height))
 
-        self.countries = countries_init()
+        self.countries = countries_init(self.paint_area_width, self.paint_area_height, self.border_width)
         self.World = world.World(self.countries)
         self.selected_county = self.World
         self.is_country_infected = False
+        self.has_healthy = True
+        self.infection_probability = 20
         self.days_passed = 0
         self.speed = 1
 
@@ -82,7 +114,6 @@ class Game:
                             self.is_country_infected = True
 
                     self.speed = self.sidebar.speed_selector(x, y)
-                    print(self.speed)
 
             self.update()
             self.draw()
@@ -92,20 +123,32 @@ class Game:
         pygame.quit()
 
     def update(self):
-        if self.is_country_infected:
+        if self.is_country_infected and self.has_healthy:
             self.days_passed += 1
             self.World.update()
 
             for cntry in self.countries:
-                color = cntry.update(self.speed)
+                color = cntry.update(self.infection_probability, self.speed)
                 self.fill(self.bg, cntry.position, color)
 
+                if cntry.is_sick:
+                    if random.randint(1, 100) <= self.infection_probability:
+                        index = random.randint(0, len(self.countries) - 1)
+                        self.countries[index].infect()
+
             self.sidebar.update(self.selected_county, self.days_passed, self.speed)
+            if self.World.sick == self.World.population:
+                self.has_healthy = False
 
     def draw(self):
         self.win.blit(self.bg, (self.border_width, self.border_width))
         self.sidebar.draw(self.win)
         self.win.blit(self.border, (0, 0))
+
+        # Remove
+        # for cnt in self.countries:
+        #     cnt.show_polygon(self.win)
+
         pygame.display.update()
 
 

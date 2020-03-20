@@ -3,10 +3,10 @@ from operator import pos
 import pygame
 import os
 
-width = 800
-height = 600
+width = 1200
+height = 800
 screen = pygame.display.set_mode((width, height))
-name = "sidebar.jpg"
+name = "bg.jpg"
 image = pygame.image.load(os.path.join("../imgs", name))
 image = pygame.transform.scale(image, (width, height))
 
