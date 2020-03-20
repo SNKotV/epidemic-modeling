@@ -11,6 +11,7 @@ image = pygame.image.load(os.path.join("../imgs", name))
 image = pygame.transform.scale(image, (width, height))
 
 points = []
+drawpol = False
 
 run = True
 while run:
@@ -24,6 +25,8 @@ while run:
             elif pressed_key[pygame.K_BACKSPACE]:
                 if points:
                     points.pop()
+            elif pressed_key[pygame.K_p]:
+                drawpol = ~drawpol
 
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
@@ -34,6 +37,9 @@ while run:
 
     for pt in points:
         pygame.draw.circle(screen, (255, 0, 0), pt, 3)
+
+    if drawpol:
+        pygame.draw.polygon(screen, (0, 0, 255), points)
 
     pygame.display.update()
 
