@@ -27,6 +27,8 @@ while run:
                     points.pop()
             elif pressed_key[pygame.K_p]:
                 drawpol = ~drawpol
+            elif pressed_key[pygame.K_LCTRL] and pressed_key[pygame.K_q]:
+                points = []
 
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
@@ -38,7 +40,7 @@ while run:
     for pt in points:
         pygame.draw.circle(screen, (255, 0, 0), pt, 3)
 
-    if drawpol:
+    if drawpol and len(points) > 2:
         pygame.draw.polygon(screen, (0, 0, 255), points)
 
     pygame.display.update()
