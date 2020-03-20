@@ -29,8 +29,11 @@ class Country:
             sick = self.sick + 10000
             self.sick = min(self.population, sick)
 
-            color = (128, 0, 0)
+            ratio = int(self.sick / self.population * 255)
+            color = (255, 255 - ratio, 255 - ratio)
             return color
+        else:
+            return (255, 255, 255)
 
     def is_selected(self, x, y):
         x -= self.position[0]

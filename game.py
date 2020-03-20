@@ -9,15 +9,15 @@ import world
 def countries_init():
     cntrs = []
     rus = country.Country("Тест")
-    rus.set_position((0, 0))
+    rus.set_position((100, 100))
     rus.set_polygon([(0, 0), (0, 300), (300, 300), (300, 0)])
     rus.population = 1000000
     cntrs.append(rus)
 
     rus2 = country.Country("RUS")
-    rus2.set_position((0, 300))
+    rus2.set_position((500, 80))
     rus2.set_polygon([(0, 0), (0, 300), (300, 300), (300, 0)])
-    rus2.population = 98718927312
+    rus2.population = 1000000
     cntrs.append(rus2)
     return cntrs
 
@@ -46,7 +46,7 @@ class Game:
         self.days_passed = 0
         self.speed = 1
 
-        self.sidebar.update(self.selected_county)
+        self.sidebar.update(self.selected_county, self.days_passed, self.speed)
 
     def run(self):
         run = True
@@ -64,8 +64,6 @@ class Game:
                     x = pygame.mouse.get_pos()[0]
                     y = pygame.mouse.get_pos()[1]
 
-                    # self.fill(self.bg, (x, y), (255, 5, 5))
-
                     if (self.border_width < x) and (x < (self.paint_area_width + self.border_width)):
                         if (self.border_width < y) and (y < (self.paint_area_height + self.border_width)):
 
@@ -76,12 +74,15 @@ class Game:
                                     self.selected_county = cntry
                                     break
 
-                    self.sidebar.update(self.selected_county)
+                    self.sidebar.update(self.selected_county, self.days_passed, self.speed)
 
                     if self.sidebar.is_button_pressed(x, y):
                         if self.selected_county != self.World:
                             self.selected_county.infect()
                             self.is_country_infected = True
+
+                    self.speed = self.sidebar.speed_selector(x, y)
+                    print(self.speed)
 
             self.update()
             self.draw()
@@ -92,14 +93,14 @@ class Game:
 
     def update(self):
         if self.is_country_infected:
-            self.days_passed += self.speed
+            self.days_passed += 1
             self.World.update()
 
-            for country in self.countries:
-                color = country.update(self.speed)
-                # self.fill(self.bg, country.position, color)
+            for cntry in self.countries:
+                color = cntry.update(self.speed)
+                self.fill(self.bg, cntry.position, color)
 
-            self.sidebar.update(self.selected_county)
+            self.sidebar.update(self.selected_county, self.days_passed, self.speed)
 
     def draw(self):
         self.win.blit(self.bg, (self.border_width, self.border_width))
@@ -107,8 +108,6 @@ class Game:
         self.win.blit(self.border, (0, 0))
         pygame.display.update()
 
-        if self.is_country_infected:
-            print(self.days_passed)
 
     def fill(self, surface, point, color):
         arr = pygame.surfarray.array3d(surface)
