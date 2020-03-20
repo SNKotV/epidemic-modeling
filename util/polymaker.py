@@ -6,7 +6,7 @@ import os
 width = 800
 height = 600
 screen = pygame.display.set_mode((width, height))
-name = "rus.png"
+name = "sidebar.jpg"
 image = pygame.image.load(os.path.join("../imgs", name))
 image = pygame.transform.scale(image, (width, height))
 
@@ -19,6 +19,11 @@ while run:
             pressed_key = pygame.key.get_pressed()
             if pressed_key[pygame.K_ESCAPE]:
                 run = False
+            elif pressed_key[pygame.K_KP_ENTER] or pressed_key[pygame.K_SPACE]:
+                print(points)
+            elif pressed_key[pygame.K_BACKSPACE]:
+                if points:
+                    points.pop()
 
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
