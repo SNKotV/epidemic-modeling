@@ -51,3 +51,6 @@ class Country:
     # Remove
     def show_polygon(self, win):
         pygame.draw.polygon(win, (0, 0, 255), self.pol)
+
+    def show_point(self, win):
+        pygame.draw.circle(win, (0, 255, 0), self.position, 3)

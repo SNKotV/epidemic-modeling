@@ -149,6 +149,9 @@ class Game:
         # for cnt in self.countries:
         #     cnt.show_polygon(self.win)
 
+        for cnt in self.countries:
+            cnt.show_point(self.win)
+
         pygame.display.update()
 
 
