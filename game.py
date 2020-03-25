@@ -129,7 +129,10 @@ class Game:
 
             for cntry in self.countries:
                 color = cntry.update(self.infection_probability, self.speed)
-                self.fill(self.bg, cntry.position, color)
+                x = cntry.position[0] - self.border_width
+                y = cntry.position[1] - self.border_width
+                self.fill(self.bg, (x, y), color)
+
 
                 if cntry.is_sick:
                     if random.randint(1, 100) <= self.infection_probability:
@@ -149,8 +152,8 @@ class Game:
         # for cnt in self.countries:
         #     cnt.show_polygon(self.win)
 
-        for cnt in self.countries:
-            cnt.show_point(self.win)
+        # for cnt in self.countries:
+        #     cnt.show_point(self.win)
 
         pygame.display.update()
 
