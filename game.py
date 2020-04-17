@@ -8,7 +8,7 @@ import sidebar
 import world
 
 
-def countries_init(screen_width, screen_height, border_width):
+def countries_init(screen_width, screen_height, border_width, number_of_stages):
     cntrs = []
 
     info_file = open("countries.info")
@@ -47,9 +47,65 @@ def countries_init(screen_width, screen_height, border_width):
         cnt.set_position(tuple(position))
         cnt.set_polygon(points)
 
+        base = int(pow(population, 1.0 / number_of_stages))
+        stage = []
+        while population > 0:
+            stage.append(population)
+            population //= base
+        stage.reverse()
+
+        cnt.stage = stage
+
         cntrs.append(cnt)
 
     return cntrs
+
+
+def create_infection():
+    width = 560
+    height = 280
+    win = pygame.display.set_mode((width, height))
+
+    textFont = pygame.font.SysFont("Times New Roman", 38, bold=True)
+    infect_prob_label = textFont.render("Infection probability", False, (20, 20, 20))
+    lower_bound = textFont.render("1", False, (0, 0, 0))
+    upper_bound = textFont.render("100", False, (0, 0, 0))
+    button_text = textFont.render("Select", False, (40, 40, 40))
+
+    probability = 10
+    xpos = 120
+    dragging = False
+    chosen = False
+
+    while not chosen:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                dragging = True
+                pos = pygame.mouse.get_pos()
+                if 160 <= pos[0] <= 400 and 150 <= pos[1] <= 230:
+                    chosen = True
+                elif 60 <= pos[0] <= 460 and 80 <= pos[1] <= 100:
+                    xpos = pos[0]
+            elif event.type == pygame.MOUSEBUTTONUP:
+                dragging = False
+            if event.type == pygame.MOUSEMOTION:
+                pos = pygame.mouse.get_pos()
+                if dragging and 60 <= pos[0] <= 460 and 80 <= pos[1] <= 100:
+                    xpos = pos[0]
+                    probability = 1 + int((pos[0] - 60) * 99 / 400)
+
+        win.fill((128, 32, 32))
+        pygame.draw.line(win, (255, 255, 255), (60, 90), (460, 90), 5)
+        win.blit(infect_prob_label, (110, 20))
+        win.blit(lower_bound, (20, 75))
+        win.blit(upper_bound, (480, 75))
+        pygame.draw.circle(win, (40, 40, 40), (xpos, 90), 15)
+        pygame.draw.rect(win, (0, 0, 0), pygame.rect.Rect((160, 150), (240, 80)), 3)
+        win.blit(button_text, (230, 165))
+
+        pygame.display.update()
+
+    return probability
 
 
 class Game:
@@ -60,8 +116,6 @@ class Game:
         self.paint_area_width = int(self.width * 2 / 3 - 2 * self.border_width)
         self.paint_area_height = int(self.height - 2 * self.border_width)
 
-        self.win = pygame.display.set_mode((self.width, self.height))
-
         self.border = pygame.image.load(os.path.join("imgs", "border.png"))
         self.border = pygame.transform.scale(self.border, (self.border_width * 2 + self.paint_area_width,
                                                            self.border_width * 2 + self.paint_area_height))
@@ -69,15 +123,17 @@ class Game:
         self.bg = pygame.image.load(os.path.join("imgs", "bg.jpg"))
         self.bg = pygame.transform.scale(self.bg, (self.paint_area_width, self.paint_area_height))
 
-        self.countries = countries_init(self.paint_area_width, self.paint_area_height, self.border_width)
+        self.countries = countries_init(self.paint_area_width, self.paint_area_height, self.border_width, 8)
         self.World = world.World(self.countries)
         self.selected_county = self.World
         self.is_country_infected = False
         self.has_healthy = True
-        self.infection_probability = 20
+        self.infection_probability = create_infection()
+        self.country_index = 0
         self.days_passed = 0
         self.speed = 1
 
+        self.win = pygame.display.set_mode((self.width, self.height))
         self.sidebar.update(self.selected_county, self.days_passed, self.speed)
 
     def run(self):
@@ -118,7 +174,7 @@ class Game:
             self.update()
             self.draw()
 
-            clock.tick(30)
+            clock.tick(7 * self.speed)
 
         pygame.quit()
 
@@ -128,14 +184,14 @@ class Game:
             self.World.update()
 
             for cntry in self.countries:
-                color = cntry.update(self.infection_probability, self.speed)
-                x = cntry.position[0] - self.border_width
-                y = cntry.position[1] - self.border_width
-                self.fill(self.bg, (x, y), color)
-
-
                 if cntry.is_sick:
-                    if random.randint(1, 100) <= self.infection_probability:
+                    color = cntry.update(self.infection_probability, self.speed)
+                    x = cntry.position[0] - self.border_width
+                    y = cntry.position[1] - self.border_width
+                    if self.bg.get_at((x, y)) != color[1]:
+                        self.fill(self.bg, (x, y), color)
+
+                    if cntry.stage[6] <= cntry.sick <= cntry.stage[7] and random.randint(1, 100) <= self.infection_probability:
                         index = random.randint(0, len(self.countries) - 1)
                         self.countries[index].infect()
 
@@ -147,16 +203,7 @@ class Game:
         self.win.blit(self.bg, (self.border_width, self.border_width))
         self.sidebar.draw(self.win)
         self.win.blit(self.border, (0, 0))
-
-        # Remove
-        # for cnt in self.countries:
-        #     cnt.show_polygon(self.win)
-
-        # for cnt in self.countries:
-        #     cnt.show_point(self.win)
-
         pygame.display.update()
-
 
     def fill(self, surface, point, color):
         arr = pygame.surfarray.array3d(surface)

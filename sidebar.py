@@ -22,7 +22,7 @@ class Sidebar:
                                  self.position[1] + int(1 / 20 * self.height))
 
         self.days_passed = ""
-        self.days_passed_pos = (self.position[0] + int(250 / 800 * self.width),
+        self.days_passed_pos = (self.position[0] + int(225 / 800 * self.width),
                                 self.position[1] + int(135 / 600 * self.height))
 
         self.country_population = ""
@@ -74,7 +74,7 @@ class Sidebar:
         win.blit(country_name, country_name_pos)
 
         days_passed = self.days_passed_font.render(self.days_passed, False, (0, 0, 0))
-        width, height = self.days_passed_font.size(self.country_name)
+        width, height = self.days_passed_font.size(self.days_passed)
         days_passed_pos = (self.days_passed_pos[0] - int(width / 2), self.days_passed_pos[1])
         win.blit(days_passed, days_passed_pos)
 
