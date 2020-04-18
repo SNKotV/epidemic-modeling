@@ -62,14 +62,14 @@ def countries_init(screen_width, screen_height, border_width, number_of_stages):
 
 
 def create_infection():
-    width = 560
+    width = 600
     height = 280
     win = pygame.display.set_mode((width, height))
 
     textFont = pygame.font.SysFont("Times New Roman", 38, bold=True)
     infect_prob_label = textFont.render("Вероятность заражения", False, (20, 20, 20))
-    lower_bound = textFont.render("1", False, (0, 0, 0))
-    upper_bound = textFont.render("100", False, (0, 0, 0))
+    lower_bound = textFont.render("0.01", False, (0, 0, 0))
+    upper_bound = textFont.render("1.00", False, (0, 0, 0))
     button_text = textFont.render("Выбрать", False, (40, 40, 40))
 
     probability = 10
@@ -82,26 +82,26 @@ def create_infection():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 dragging = True
                 pos = pygame.mouse.get_pos()
-                if 160 <= pos[0] <= 400 and 150 <= pos[1] <= 230:
+                if 200 <= pos[0] <= 440 and 150 <= pos[1] <= 230:
                     chosen = True
-                elif 60 <= pos[0] <= 460 and 80 <= pos[1] <= 100:
+                elif 100 <= pos[0] <= 500 and 80 <= pos[1] <= 100:
                     xpos = pos[0]
             elif event.type == pygame.MOUSEBUTTONUP:
                 dragging = False
             if event.type == pygame.MOUSEMOTION:
                 pos = pygame.mouse.get_pos()
-                if dragging and 60 <= pos[0] <= 460 and 80 <= pos[1] <= 100:
+                if dragging and 100 <= pos[0] <= 500 and 80 <= pos[1] <= 100:
                     xpos = pos[0]
-                    probability = 1 + int((pos[0] - 60) * 99 / 400)
+                    probability = 1 + int((pos[0] - 100) * 99 / 400)
 
         win.fill((128, 32, 32))
-        pygame.draw.line(win, (255, 255, 255), (60, 90), (460, 90), 5)
-        win.blit(infect_prob_label, (70, 20))
+        pygame.draw.line(win, (255, 255, 255), (100, 90), (500, 90), 5)
+        win.blit(infect_prob_label, (110, 20))
         win.blit(lower_bound, (20, 75))
-        win.blit(upper_bound, (480, 75))
+        win.blit(upper_bound, (520, 75))
         pygame.draw.circle(win, (40, 40, 40), (xpos, 90), 15)
-        pygame.draw.rect(win, (0, 0, 0), pygame.rect.Rect((160, 150), (240, 80)), 3)
-        win.blit(button_text, (205, 165))
+        pygame.draw.rect(win, (0, 0, 0), pygame.rect.Rect((200, 150), (240, 80)), 3)
+        win.blit(button_text, (245, 165))
 
         pygame.display.update()
 
