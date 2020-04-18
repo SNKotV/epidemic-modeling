@@ -67,10 +67,10 @@ def create_infection():
     win = pygame.display.set_mode((width, height))
 
     textFont = pygame.font.SysFont("Times New Roman", 38, bold=True)
-    infect_prob_label = textFont.render("Infection probability", False, (20, 20, 20))
+    infect_prob_label = textFont.render("Вероятность заражения", False, (20, 20, 20))
     lower_bound = textFont.render("1", False, (0, 0, 0))
     upper_bound = textFont.render("100", False, (0, 0, 0))
-    button_text = textFont.render("Select", False, (40, 40, 40))
+    button_text = textFont.render("Выбрать", False, (40, 40, 40))
 
     probability = 10
     xpos = 120
@@ -96,12 +96,12 @@ def create_infection():
 
         win.fill((128, 32, 32))
         pygame.draw.line(win, (255, 255, 255), (60, 90), (460, 90), 5)
-        win.blit(infect_prob_label, (110, 20))
+        win.blit(infect_prob_label, (70, 20))
         win.blit(lower_bound, (20, 75))
         win.blit(upper_bound, (480, 75))
         pygame.draw.circle(win, (40, 40, 40), (xpos, 90), 15)
         pygame.draw.rect(win, (0, 0, 0), pygame.rect.Rect((160, 150), (240, 80)), 3)
-        win.blit(button_text, (230, 165))
+        win.blit(button_text, (205, 165))
 
         pygame.display.update()
 
@@ -188,7 +188,7 @@ class Game:
                     color = cntry.update(self.infection_probability, self.speed)
                     x = cntry.position[0] - self.border_width
                     y = cntry.position[1] - self.border_width
-                    if self.bg.get_at((x, y)) != color[1]:
+                    if self.bg.get_at((x, y)) != color:
                         self.fill(self.bg, (x, y), color)
 
                     if cntry.stage[6] <= cntry.sick <= cntry.stage[7] and random.randint(1, 100) <= self.infection_probability:
